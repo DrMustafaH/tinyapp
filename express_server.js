@@ -6,6 +6,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
+
+const generateRandomString = () => {
+  return Math.random().toString(20).substr(2, 6)
+}
+const stringShortUrl = generateRandomString()
+
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -45,3 +52,4 @@ app.post("/urls", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
