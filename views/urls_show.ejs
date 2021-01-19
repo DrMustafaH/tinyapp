@@ -10,7 +10,9 @@
 
 
 <body>
+  <!-- green navbar -->
   <%- include('partials/_header') %>
+    <!-- long url and short url part of the url_show page -->
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
@@ -20,11 +22,11 @@
             <%= shortURL %>
           </a>
       </div>
-
+      <!-- edit part of the url_show page -->
       <div class="card-footer text-muted">
         <div class="card-body">
           <h2 class="card-title">Edit</h2>
-          <form class="card-title" action="/urls" method="POST">
+          <form class="card-title" action="/urls/<%= shortURL %>" method="POST">
             <div class="card-title">
               <label for="longURL">New URL:</label>
               <input class="card-title" type="text" name="longURL" placeholder="http://"

@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
-
+// function to generate a random 6 character shortURL
 const generateRandomString = () => {
   return Math.random().toString(20).substr(2, 6)
 }
@@ -19,28 +19,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-
+// main page
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-
+// code to show the urldatabase on the webpage
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// code just to try and make a page saying hello world (bold world)
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-
+// my urls page of tinyapp
 app.get("/urls", function (req, res) {
   const templateVars = { urls: urlDatabase }
   res.render("urls_index", templateVars)
 })
 
-
+// create new url page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -52,9 +52,14 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 
-// edit url from url index page
-app.post("/urls/:id", (req, res) => {
-  res.redirect(`/urls/${req.params.id}`)
+// edit button redirect to urls_show page
+app.post(`/urls/:id`, (req, res) => {
+  if (req.body.longURL) {
+    urlDatabase[req.params.id] = req.body.longURL
+    res.redirect(`/urls`)
+  } else {
+    res.redirect(`/urls/${req.params.id}`)
+  }
 })
 
 
@@ -73,7 +78,7 @@ app.post("/urls", (req, res) => {
 });
 
 
-// get an error if url was passed wrong and if not just go to the page of the url submitted
+// get an error if url was passed wrong and if not just go to the website of the longurl submitted
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     res.sendStatus(404)
