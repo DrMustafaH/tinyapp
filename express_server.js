@@ -36,7 +36,10 @@ app.get("/urls.json", (req, res) => {
 
 // my urls page of tinyapp
 app.get("/urls", function (req, res) {
-  const templateVars = { urls: urlDatabase }
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  }
   res.render("urls_index", templateVars)
 })
 
