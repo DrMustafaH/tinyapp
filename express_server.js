@@ -12,7 +12,6 @@ const generateRandomString = () => {
 }
 const stringShortUrl = generateRandomString()
 
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -45,11 +44,10 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+  urlDatabase[stringShortUrl] = req.body.longURL
+  res.redirect(`/urls/${stringShortUrl}`);
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
