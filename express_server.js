@@ -4,8 +4,8 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const { request } = require("express");
 app.use(bodyParser.urlencoded({ extended: true }));
-
-
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
 app.set("view engine", "ejs");
 
 // function to generate a random 6 character shortURL
@@ -39,6 +39,14 @@ app.get("/urls", function (req, res) {
   const templateVars = { urls: urlDatabase }
   res.render("urls_index", templateVars)
 })
+
+//when user enters username in login form it will store in cookie and redirect back to url page
+app.post("/login", (req, res) => {
+  let username = req.body.username;
+  res.cookie('username', username);
+  res.redirect(`/urls`)
+})
+
 
 // create new url page
 app.get("/urls/new", (req, res) => {
@@ -89,6 +97,7 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   }
 });
+
 
 
 app.listen(PORT, () => {
