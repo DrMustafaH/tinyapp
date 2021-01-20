@@ -19,6 +19,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
 // main page
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -43,6 +44,10 @@ app.get("/urls", function (req, res) {
   res.render("urls_index", templateVars)
 })
 
+// const templateVars = {
+//   urls: urlDatabase,
+//   username: req.cookies["username"]
+// }
 //when user enters username in login form it will store in cookie and redirect back to url page
 app.post("/login", (req, res) => {
   let username = req.body.username;
@@ -51,14 +56,26 @@ app.post("/login", (req, res) => {
 })
 
 
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
+  res.redirect(`/urls`)
+})
+
 // create new url page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
 });
 
-
+// get the url page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"]
+  };
   res.render("urls_show", templateVars);
 });
 

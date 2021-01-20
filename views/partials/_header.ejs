@@ -11,11 +11,22 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <% if (username){ %>
+      <h6 style="margin: 0.5em">
+        Logged In As: <%=username %>
+      </h6>
+      <form action="/logout" method="post"><button style="width: auto; margin: 0.5em" type="submit"
+          class="btn btn-outline-dark">Logout</button>
+      </form>
+      <% } else { %>
+        <form class="card-title" action="/login" method="POST" style="margin: 0.5em">
+          <input class="card-title" type="text" name="username" placeholder="Username"
+            style="width: 300px; margin: 0.5em">
+          <button type="submit" class="btn btn-outline-dark">Login</button>
+        </form>
 
-    <form class="card-title" action="/login" method="POST">
-      <input class="card-title" type="text" name="username" placeholder="Username" style="width: 300px; margin: 0.5em">
-      <button type="submit" class="btn btn-outline-dark">Login</button>
-    </form>
+        <% } %>
+
   </nav>
 
 
