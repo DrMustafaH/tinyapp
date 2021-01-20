@@ -29,7 +29,7 @@ const users = {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
-  }
+  },
 }
 
 // main page
@@ -51,63 +51,42 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", function (req, res) {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"]
+    email: users[req.cookies['user_id']].email
   }
+  console.log(templateVars);
   res.render("urls_index", templateVars)
 })
 
-// const templateVars = {
-//   urls: urlDatabase,
-//   username: req.cookies["username"]
-// }
+
 //when user enters username in login form it will store in cookie and redirect back to url page
 app.post("/login", (req, res) => {
-  let username = req.body.username;
-  res.cookie('username', username);
+  let email = req.body.email;
+  res.cookie('email', email);
   res.redirect(`/urls`)
 })
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('email');
   res.redirect(`/urls`)
 })
 
 // create new url page
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    // username: req.cookies["username"],
+    email: users[req.cookies['user_id']].email
   }
   res.render("urls_new", templateVars);
 });
 
-// create register page
-app.get("/register", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"]
-  }
-  res.render("register", templateVars);
-});
-
-// register page handler after register button is pressed
-app.post("/register", (req, res) => {
-  let randomID = generateRandomString()
-  users[randomID] = {
-    id: randomID,
-    email: req.body.email,
-    password: req.body.password
-  }
-  // setting a cookie for user_id and then directing user to urls page
-  res.cookie('user_id', randomID)
-  res.redirect("/urls")
-})
 
 // get the url page
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    email: users[req.cookies['user_id']].email
   };
   res.render("urls_show", templateVars);
 });
@@ -140,6 +119,26 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${stringShortUrl}`);
 });
 
+// create register page
+app.get("/register", (req, res) => {
+  const templateVars = {
+    email: null
+  }
+  res.render("register", templateVars);
+});
+
+// register page handler after register button is pressed
+app.post("/register", (req, res) => {
+  let randomID = generateRandomString()
+  users[randomID] = {
+    id: randomID,
+    email: req.body.email,
+    password: req.body.password
+  }
+  // setting a cookie for user_id and then directing user to urls page
+  res.cookie('user_id', randomID)
+  res.redirect("/urls")
+})
 
 // get an error if url was passed wrong and if not just go to the website of the longurl submitted
 app.get("/u/:shortURL", (req, res) => {
