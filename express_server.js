@@ -42,10 +42,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// code just to try and make a page saying hello world (bold world)
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
 
 // my urls page of tinyapp
 app.get("/urls", function (req, res) {
@@ -65,15 +61,15 @@ app.get("/login", (req, res) => {
 
 //when user enters username in login form it will store in cookie and redirect back to url page
 app.post("/login", (req, res) => {
-  let email = req.body.email;
-  res.cookie('email', email);
+  let userIdObj = req.body;
+  res.cookie('userIdObj', userIdObj);
   res.redirect(`/urls`)
 })
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('email');
-  res.redirect(`/urls`)
+  res.clearCookie('userIdObj');
+  res.redirect(`/login`)
 })
 
 // create new url page
@@ -158,13 +154,6 @@ app.post("/register", (req, res) => {
   res.sendStatus(400)
 })
 
-// console.log(users[req.body.id].email);
-// console.log(req.body.email);
-// }
-// }
-// console.log(users[randomID].email)
-// res.sendStatus(404);
-
 // get an error if url was passed wrong and if not just go to the website of the longurl submitted
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
@@ -180,3 +169,21 @@ app.get("/u/:shortURL", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+// const templateVars = {
+//   urls: urlDatabase
+// }
+// if (!templateVars.email) {
+//   const templateVars = {
+//     urls: urlDatabase,
+//     email: null
+//   }
+//   res.render("urls_index", templateVars)
+// } else {
+//   const templateVars = {
+//     urls: urlDatabase,
+//     email: users[req.cookies['user_id']].email
+//   }
+//   res.render("urls_index", templateVars)
+// }

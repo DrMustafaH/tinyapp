@@ -20,11 +20,10 @@
           class="btn btn-outline-dark">Logout</button>
       </form>
       <% } else { %>
-        <form class="card-title" action="/login" method="POST" style="margin: 0.5em">
-          <input class="card-title" type="text" name="email" placeholder="email" style="width: 300px; margin: 0.5em">
-          <button type="submit" class="btn btn-outline-dark">Login</button>
-        </form>
-
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/login">Login</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
+        </div>
         <% } %>
 
   </nav>
