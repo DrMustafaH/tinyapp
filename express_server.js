@@ -53,7 +53,7 @@ app.get("/urls", function (req, res) {
     urls: urlDatabase,
     email: users[req.cookies['user_id']].email
   }
-  console.log(templateVars);
+  // console.log(templateVars);
   res.render("urls_index", templateVars)
 })
 
@@ -129,6 +129,11 @@ app.get("/register", (req, res) => {
 
 // register page handler after register button is pressed
 app.post("/register", (req, res) => {
+  // console.log(users[req.body.id].email);
+  // console.log(req.body.email);
+  if (req.body.email === "" || req.body.password === "") {
+    res.sendStatus(400);
+  }
   let randomID = generateRandomString()
   users[randomID] = {
     id: randomID,
@@ -138,6 +143,8 @@ app.post("/register", (req, res) => {
   // setting a cookie for user_id and then directing user to urls page
   res.cookie('user_id', randomID)
   res.redirect("/urls")
+  // res.sendStatus(404);
+
 })
 
 // get an error if url was passed wrong and if not just go to the website of the longurl submitted
