@@ -19,6 +19,18 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
 
 // main page
 app.get("/", (req, res) => {
@@ -76,6 +88,19 @@ app.get("/register", (req, res) => {
   }
   res.render("register", templateVars);
 });
+
+// register page handler after register button is pressed
+app.post("/register", (req, res) => {
+  let randomID = generateRandomString()
+  users[randomID] = {
+    id: randomID,
+    email: req.body.email,
+    password: req.body.password
+  }
+  // setting a cookie for user_id and then directing user to urls page
+  res.cookie('user_id', randomID)
+  res.redirect("/urls")
+})
 
 // get the url page
 app.get("/urls/:shortURL", (req, res) => {
