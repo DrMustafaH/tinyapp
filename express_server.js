@@ -56,6 +56,12 @@ app.get("/urls", function (req, res) {
   res.render("urls_index", templateVars)
 })
 
+app.get("/login", (req, res) => {
+  const templateVars = {
+    email: null
+  }
+  res.render("login", templateVars);
+})
 
 //when user enters username in login form it will store in cookie and redirect back to url page
 app.post("/login", (req, res) => {
