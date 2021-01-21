@@ -61,21 +61,31 @@ app.get("/login", (req, res) => {
 
 //when user enters username in login form it will store in cookie and redirect back to url page
 app.post("/login", (req, res) => {
-  let userIdObj = req.body;
-  res.cookie('userIdObj', userIdObj);
-  res.redirect(`/urls`)
+  if (req.body.email === "" || req.body.password === "") {
+    res.sendStatus(403);
+  }
+
+  let userExists = false;
+  for (const userID in users) {
+    const userInfoObj = users[userID]
+    if (userInfoObj.email === req.body.email && userInfoObj.password === req.body.password) {
+      userExists = true
+      res.cookie('user_id', users[userID].id);
+      res.redirect(`/urls`);
+    }
+  }
+  res.sendStatus(403);
 })
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('userIdObj');
+  res.clearCookie('user_id');
   res.redirect(`/login`)
 })
 
 // create new url page
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    // username: req.cookies["username"],
     email: users[req.cookies['user_id']].email
   }
   res.render("urls_new", templateVars);
