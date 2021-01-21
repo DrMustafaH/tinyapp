@@ -5,6 +5,16 @@ const bodyParser = require("body-parser");
 const { request } = require("express");
 app.use(bodyParser.urlencoded({ extended: true }));
 const cookieParser = require('cookie-parser')
+var cookieSession = require('cookie-session')
+
+app.use(cookieSession({
+  name: 'session',
+  keys: [/* secret keys */],
+
+  // Cookie Options
+  // maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
+
 app.use(cookieParser())
 app.set("view engine", "ejs");
 const bcrypt = require('bcrypt');
