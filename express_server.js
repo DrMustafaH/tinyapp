@@ -7,6 +7,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 app.set("view engine", "ejs");
+const bcrypt = require('bcrypt');
 
 // function to generate a random 6 character shortURL
 const generateRandomString = () => {
@@ -34,21 +35,21 @@ const urlsForUser = function (id) {
 
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  },
-  "1": {
-    id: "1",
-    email: "hello@world.com",
-    password: "123"
-  },
+  // "userRandomID": {
+  //   id: "userRandomID",
+  //   email: "user@example.com",
+  //   password: "purple-monkey-dinosaur"
+  // },
+  // "user2RandomID": {
+  //   id: "user2RandomID",
+  //   email: "user2@example.com",
+  //   password: "dishwasher-funk"
+  // },
+  // "1": {
+  //   id: "1",
+  //   email: "hello@world.com",
+  //   password: "123"
+  // },
 }
 
 // main page
@@ -83,14 +84,17 @@ app.get("/login", (req, res) => {
 
 //when user enters username in login form it will store in cookie and redirect back to url page
 app.post("/login", (req, res) => {
-  if (req.body.email === "" || req.body.password === "") {
+  const userEmail = req.body.email;
+  const userPass = req.body.password
+  if (userEmail === "" || userPass === "") {
     res.sendStatus(403);
   }
 
   let userExists = false;
   for (const userID in users) {
     const userInfoObj = users[userID]
-    if (userInfoObj.email === req.body.email && userInfoObj.password === req.body.password) {
+    if (userInfoObj.email === userEmail && bcrypt.compareSync(userPass, userInfoObj.password)) {
+      console.log(users);
       userExists = true
       res.cookie('user_id', users[userID].id);
       res.redirect(`/urls`);
@@ -174,13 +178,16 @@ app.get("/register", (req, res) => {
 
 // register page handler after register button is pressed
 app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "") {
+  const userEmail = req.body.email;
+  const userPass = req.body.password
+  const hashedPass = bcrypt.hashSync(userPass, 10);
+  if (userEmail === "" || userPass === "") {
     res.sendStatus(400);
   }
   let userExist = false;
   for (const usersId in users) {
     const usersInfo = users[usersId];
-    if (usersInfo.email === req.body.email) {
+    if (usersInfo.email === userEmail) {
       userExist = true;
     }
   }
@@ -188,10 +195,11 @@ app.post("/register", (req, res) => {
     let randomID = generateRandomString()
     users[randomID] = {
       id: randomID,
-      email: req.body.email,
-      password: req.body.password
+      email: userEmail,
+      password: hashedPass
     }
     // setting a cookie for user_id and then directing user to urls page
+    console.log(users);
     res.cookie('user_id', randomID)
     res.redirect("/urls")
     return;
