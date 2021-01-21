@@ -15,8 +15,9 @@ const generateRandomString = () => {
 
 
 const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "1" }
-  // "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "1" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "2" },
+  "9sm5xK": { longURL: "http://www.cnn.com", userID: "1" }
 };
 
 const users = {
@@ -50,6 +51,9 @@ app.get("/urls.json", (req, res) => {
 
 // my urls page of tinyapp
 app.get("/urls", function (req, res) {
+  if (req.cookies['user_id'] === undefined) {
+    res.status(400).send("Access Denied. Please Login or Register!")
+  }
   const templateVars = {
     urls: urlDatabase,
     email: users[req.cookies['user_id']].email
@@ -91,6 +95,9 @@ app.post("/logout", (req, res) => {
 
 // create new url page
 app.get("/urls/new", (req, res) => {
+  if (req.cookies['user_id'] === undefined) {
+    res.status(400).send("Access Denied. Please Login or Register!")
+  }
   const templateVars = {
     email: users[req.cookies['user_id']].email
   }
@@ -132,10 +139,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // add url to url index page
 app.post("/urls", (req, res) => {
   const stringShortUrl = generateRandomString()
-  console.log(req.cookies)
   urlDatabase[stringShortUrl] = { longUrl: req.body.longURL, userID: req.cookies['user_id'] }
-  console.log("This is :" + JSON.stringify(urlDatabase[stringShortUrl]));
-  // urlDatabase[stringShortUrl] = 
   res.redirect(`/urls/${stringShortUrl}`);
 });
 
