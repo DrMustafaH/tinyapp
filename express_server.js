@@ -131,21 +131,29 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // action of edit button in url_index page and the action of submit button in url_show page
 app.post(`/urls/:id`, (req, res) => {
-  // if the form in the url_show page contains an input(longURL) it will edit the long url and redirect you back to urls_index page
   if (req.body.longURL) {
-    urlDatabase[req.params.id] = req.body.longURL
-    res.redirect(`/urls`)
-    // if no input was made in form it will just stay in the url_show page
+    const userUrlsDB = urlsForUser(req.cookies['user_id'])
+    if (Object.keys(userUrlsDB).includes(req.params.id)) {
+      const shortURL = req.params.id;
+      urlDatabase[shortURL].longURL = req.body.newURL
+      res.redirect(`/urls`)
+    }
   } else {
-    res.redirect(`/urls/${req.params.id}`)
+    res.status(401).send(`You do not have authorization to edit this URL.`)
   }
 })
 
 
 // Delete url from url index page
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL]
-  res.redirect("/urls")
+  const userUrlsDB = urlsForUser(req.cookies['user_id'])
+  if (Object.keys(userUrlsDB).includes(req.params.shortURL)) {
+    const shortURL = req.params.shortURL
+    delete urlDatabase[shortURL]
+    res.redirect("/urls")
+  } else {
+    res.status(401).send("You do not have authorization to delete this URL.");
+  }
 })
 
 
