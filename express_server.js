@@ -14,11 +14,24 @@ const generateRandomString = () => {
 }
 
 
+
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "1" },
   "9sm5xK": { longURL: "http://www.google.com", userID: "2" },
   "9sm5xK": { longURL: "http://www.cnn.com", userID: "1" }
 };
+
+const urlsForUser = function (id) {
+  const userUrls = {};
+  for (const shortURL in urlDatabase) {
+    const urlInfoObj = urlDatabase[shortURL];
+    if (urlInfoObj.userID === id) {
+      userUrls[shortURL] = urlInfoObj
+    }
+  }
+  return userUrls;
+}
+
 
 const users = {
   "userRandomID": {
@@ -55,7 +68,7 @@ app.get("/urls", function (req, res) {
     res.status(400).send("Access Denied. Please Login or Register!")
   }
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies['user_id']),
     email: users[req.cookies['user_id']].email
   }
   res.render("urls_index", templateVars)
