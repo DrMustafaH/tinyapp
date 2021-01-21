@@ -22,7 +22,6 @@ const generateRandomString = () => {
 }
 
 
-
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "1" },
   "9sm5xK": { longURL: "http://www.google.com", userID: "2" }
@@ -41,9 +40,38 @@ const urlsForUser = function (id) {
 
 const users = {}
 
+const cookieHasUser = function (cookie, userDatabase) {
+  for (const user in userDatabase) {
+    if (cookie === user) {
+      return true;
+    }
+  } return false;
+};
+
+const emailInDatabase = function (email, userDatabase) {
+  for (const user in userDatabase) {
+    if (userDatabase[user].email === email) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const fetchIdByEmail = function (email, userDatabase) {
+  for (const user in userDatabase) {
+    if (userDatabase[user].email === email) {
+      return userDatabase[user].id;
+    }
+  }
+};
+
 // main page
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (cookieHasUser(req.session.user_id, users)) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // code to show the urldatabase on the webpage
@@ -76,20 +104,18 @@ app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password
   if (userEmail === "" || userPass === "") {
-    res.sendStatus(403);
-  }
-
-  let userExists = false;
-  for (const userID in users) {
-    const userInfoObj = users[userID]
-    if (userInfoObj.email === userEmail && bcrypt.compareSync(userPass, userInfoObj.password)) {
-      userExists = true
-      req.session.user_id = users[userID].id;
-      res.redirect(`/urls`);
-      return;
+    res.status(403).send(`Please enter valid email/password!`);
+  } else if (!emailInDatabase(userEmail, users)) {
+    res.status(403).send(`No account registered with this email, please register!`);
+  } else {
+    const userID = fetchIdByEmail(userEmail, users);
+    if (!bcrypt.compareSync(userPass, users[userID].password)) {
+      res.status(403).send(`Incorrect password!`);
+    } else {
+      req.session.user_id = userID;
+      return res.redirect(`/urls`);
     }
   }
-  res.sendStatus(403);
 })
 
 
@@ -169,29 +195,20 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password
   const hashedPass = bcrypt.hashSync(userPass, 10);
-  if (userEmail === "" || userPass === "") {
-    res.sendStatus(400);
-  }
-  let userExist = false;
-  for (const usersId in users) {
-    const usersInfo = users[usersId];
-    if (usersInfo.email === userEmail) {
-      userExist = true;
-    }
-  }
-  if (!userExist) {
+  if (!userEmail || !userPass) {
+    res.status(400).send("Please enter email and password to register!")
+  } else if (emailInDatabase(userEmail, users)) {
+    res.status(400).send("Email already exists, please login")
+  } else {
     let randomID = generateRandomString()
     users[randomID] = {
       id: randomID,
       email: userEmail,
       password: hashedPass
     }
-    // setting a cookie for user_id and then directing user to urls page
     req.session.user_id = randomID;
-    res.redirect("/urls")
-    return;
+    return res.redirect("/urls")
   }
-  res.sendStatus(400)
 })
 
 // get an error if url was passed wrong and if not just go to the website of the longurl submitted
