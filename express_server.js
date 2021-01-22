@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
   if (cookieHasUser(req.session.user_id, users)) {
     res.redirect("/urls");
   } else {
-    res.redirect("/register");
+    res.redirect("/login");
   }
 });
 
@@ -44,7 +44,7 @@ app.get("/urls", function (req, res) {
     res.status(400).send("Access Denied. Please Login or Register!");
   }
   const templateVars = {
-    urls: urlsForUser(req.session.user_id, users),
+    urls: urlsForUser(req.session.user_id, urlDatabase),
     email: users[req.session.user_id].email
   };
   res.render("urls_index", templateVars);
@@ -54,7 +54,7 @@ app.get("/urls", function (req, res) {
 // Create New URL page of tinyapp
 app.get("/urls/new", (req, res) => {
   if (req.session.user_id === undefined) {
-    res.status(400).send("Access Denied. Please Login or Register!");
+    res.redirect("/login");
   }
   const templateVars = {
     email: users[req.session.user_id].email
@@ -83,21 +83,28 @@ app.get("/login", (req, res) => {
 
 // The URL info page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longUrl,
-    email: users[req.session.user_id].email
-  };
-  res.render("urls_show", templateVars);
+  if (req.session.user_id === undefined) {
+    res.status(404).send("Sorry, only registered user can enter. Please login/register.");
+  }
+  if (urlDatabase[req.params.shortURL]) {
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      email: users[req.session.user_id].email
+    };
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(404).send("Sorry, short URL provided does not correspond with any long URL in our database.");
+  }
 });
 
 
 // The link to the website page for access by non users and users
 app.get("/u/:shortURL", (req, res) => {
-  if (!urlDatabase[req.params.shortURL]) {
-    res.sendStatus(404);
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    res.status(404).send("Sorry, this short URL does not correspond to any long URL in our database.");
   } else {
-    const longURL = urlDatabase[req.params.shortURL].longUrl;
+    const longURL = urlDatabase[req.params.shortURL].longURL;
     res.redirect(longURL);
   }
 });
@@ -112,7 +119,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
-    longUrl: req.body.longURL,
+    longURL: req.body.longURL,
     userID: req.session.user_id
   };
   res.redirect(`/urls/${shortURL}`);
@@ -168,9 +175,30 @@ app.post("/logout", (req, res) => {
 });
 
 
+// Edit a URL logic
+app.post(`/urls/:id`, (req, res) => {
+  if (req.body.longURL === undefined) {
+    res.redirect(`/urls/${req.params.id}`)
+  }
+  const longURL = urlDatabase[req.params.id].longURL;
+  const userUrlsDB = urlsForUser(req.session.user_id, urlDatabase);
+  if (longURL) {
+    if (Object.keys(userUrlsDB).includes(req.params.id)) {
+      const shortURL = req.params.id;
+      urlDatabase[shortURL].longURL = req.body.longURL || longURL;
+      res.redirect(`/urls`);
+    } else {
+      res.status(401).send(`You do not have authorization to edit this URL.`);
+    }
+  } else {
+    res.status(401).send(`Please type in a correct URL.`);
+  }
+});
+
+
 // Delete a URL logic
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const userUrlsDB = urlsForUser(req.session.user_id, users);
+  const userUrlsDB = urlsForUser(req.session.user_id, urlDatabase);
   if (Object.keys(userUrlsDB).includes(req.params.shortURL)) {
     const shortURL = req.params.shortURL;
     delete urlDatabase[shortURL];
@@ -181,19 +209,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 
-// Edit a URL logic
-app.post(`/urls/:id`, (req, res) => {
-  if (req.body.longURL) {
-    const userUrlsDB = urlsForUser(req.session.user_id, users);
-    if (Object.keys(userUrlsDB).includes(req.params.id)) {
-      const shortURL = req.params.id;
-      urlDatabase[shortURL].longUrl = req.body.longURL;
-      res.redirect(`/urls`);
-    }
-  } else {
-    res.status(401).send(`You do not have authorization to edit this URL.`);
-  }
-});
 
 
 
